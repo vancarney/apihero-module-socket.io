@@ -1,6 +1,6 @@
 {
   "assets": {
-    "apihero-socket.io-client.js": "apihero-socket.io-client-c00cfe4d6458cfcda73564eb5e3fb72a.js"
+    "apihero-socket.io-client.js": "apihero-socket.io-client-933cbede7155499383fd23539867316c.js"
   },
   "files": {
     "apihero-socket.io-client-9ccd196d517e310d733f0b540eba358f.js": {
@@ -14,6 +14,12 @@
       "mtime": "2015-08-23T16:39:32.000Z",
       "size": 11014,
       "digest": "c00cfe4d6458cfcda73564eb5e3fb72a"
+    },
+    "apihero-socket.io-client-933cbede7155499383fd23539867316c.js": {
+      "logical_path": "apihero-socket.io-client.js",
+      "mtime": "2015-08-23T19:33:10.000Z",
+      "size": 11221,
+      "digest": "933cbede7155499383fd23539867316c"
     }
   }
 }
