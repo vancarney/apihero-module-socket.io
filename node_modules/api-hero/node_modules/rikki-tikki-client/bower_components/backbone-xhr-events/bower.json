@@ -1,0 +1,29 @@
+{
+  "name": "backbone-xhr-events",
+  "main": "backbone-xhr-events.js",
+  "version": "1.0.1",
+  "homepage": "https://github.com/jhudson8/backbone-xhr-events",
+  "authors": [
+    "Joe Hudson <joehud@gmail.com>"
+  ],
+  "description": "Backbone plugin giving you full featured XHR observer capabilities",
+  "moduleType": [
+    "amd",
+    "globals"
+  ],
+  "keywords": [
+    "XHR",
+    "XMLHTTPRequest",
+    "event",
+    "backbone",
+    "plugin"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "backbone-xhr-events",
+  "version": "1.0.1",
+  "author": "Joe Hudson <joehud@gmail.com>",
+  "description": "Backbone plugin giving you full featured XHR observer capabilities",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jhudson8/backbone-xhr-events.git"
+  },
+  "keywords": [
+    "XHR",
+    "XMLHTTPRequest",
+    "event",
+    "backbone",
+    "plugin"
+  ],
+  "scripts": {
+    "test": "mocha"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "peerDependencies": {
+    "underscore": "*",
+    "backbone": "*"
+  },
+  "analyze": false,
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "sinon": "*",
+    "sinon-chai": "*",
+    "uglify-js": "*",
+    "underscore": "*",
+    "backbone": "*"
+  },
+  "license": "MIT"
+}
