@@ -1,13 +1,13 @@
 unless window?
   Backbone = require 'backbone'
-  SockData = require './models/sockdata'
+  SockData = require './models/stream-model'
   ApiHero = {WebSock:{}}
-  module.exports = Client
+  
 class ApiHero.WebSock.Client
   __streamHandlers:{}
   constructor:(@__addr, @__options={})->
     _.extend @, Backbone.Events
-    @model = ApiHero.WebSock.SockData 
+    @model = ApiHero.WebSock.StreamModel 
     @connect() unless @__options.auto_connect? and @__options.auto_connect is false
   connect:->
     @__conn = new connection @__options
@@ -23,3 +23,6 @@ class ApiHero.WebSock.Client
   getClientId:->
     return null unless @socket?.io?.engine?
     @socket.io.engine.id
+
+unless window?    
+  module.exports = ApiHero.WebSock.Client

@@ -1,6 +1,6 @@
 {
   "author": "Van Carney <carney.van@gmail.com>",
-  "name": "apihero-module-socket.io",
+  "name": "apihero-module-socketio",
   "description": "Socket.io support for ApiHero",
   "keywords": [
     "apiherio",

@@ -1,5 +1,7 @@
 # require Node::FS
 fs = require 'fs'
+path = require 'path'
+{_} = require 'lodash'
 # require Node::Util
 # connect = require 'connect'
 {debug, error, log, print} = require 'util'
@@ -31,10 +33,15 @@ paths={
 # file extensions for watching
 exts='coffee|jade'
 # Begin Callback Handlers
-# Callback From 'coffee'
-coffeeCallback=()->
-  # exec 'cp lib/sparse.js ../sparse-demo/src/assets/javascript'
-  # minify()
+mincerCallback = (cB)->
+  proj_name     = path.basename __dirname
+  manifest_path = "./dist/manifest.json"
+  manifest      = require manifest_path
+  assets        = manifest.assets
+  done = _.after _.keys(assets).length, => 
+    fs.unlink manifest_path, cB
+  _.each assets, (file,name)=>
+    exec "mv ./dist/#{file} ./dist/apihero-socket.io-client#{path.extname name}", done()
 # Callback From 'docco'
 doccoCallback=()->
   # exec "rm -rf ../sparse-pages/docs; mv docs ../sparse-pages"
@@ -42,14 +49,10 @@ doccoCallback=()->
 # ## *build*
 # Compiles Sources
 task 'build', 'Compiles Sources', ()-> build -> log ':)', green
-build = ()->
-  # From Module 'coffee'
-  
-  # Enable coffee-script compiling
-  #launch 'coffee', (['-j','lib/sparse.js', '-c', 'src/sparse.coffee', 'src/classes/*']), coffeeCallback
-
-  # console.log "coffee --join lib/api.js --compile #{apiFiles.files.join(' ').replace(/('|\")/g, '')}"
-  exec "coffee -b -c -o lib src", coffeeCallback
+build = (cB)->
+  exec "coffee -cbo lib coffee", (e)=>
+    exec "node manifest", =>
+      setTimeout (=> mincerCallback cB), 1200 
 # ## *watch*
 # watch project src folders and build on change
 task 'watch', 'watch project src folders and build on change', ()-> watch -> log ':)', green

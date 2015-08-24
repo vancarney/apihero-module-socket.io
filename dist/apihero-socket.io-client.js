@@ -325,11 +325,10 @@ var ApiHero, Backbone, SockData;
 
 if (typeof window === "undefined" || window === null) {
   Backbone = require('backbone');
-  SockData = require('./models/sockdata');
+  SockData = require('./models/stream-model');
   ApiHero = {
     WebSock: {}
   };
-  module.exports = Client;
 }
 
 ApiHero.WebSock.Client = (function() {
@@ -339,7 +338,7 @@ ApiHero.WebSock.Client = (function() {
     this.__addr = __addr;
     this.__options = __options != null ? __options : {};
     _.extend(this, Backbone.Events);
-    this.model = ApiHero.WebSock.SockData;
+    this.model = ApiHero.WebSock.StreamModel;
     if (!((this.__options.auto_connect != null) && this.__options.auto_connect === false)) {
       this.connect();
     }
@@ -378,11 +377,22 @@ ApiHero.WebSock.Client = (function() {
   return Client;
 
 })();
+
+if (typeof window === "undefined" || window === null) {
+  module.exports = ApiHero.WebSock.Client;
+}
+;
+if (typeof RikkiTikki === "undefined" || RikkiTikki === null) {
+  throw console.log("ApiHero not found -- insure it is isntalled nd added to your JS stack");
+}
+
+RikkiTikki.extend(ApiHero);
 /*
-(=) require _init
+(=) require ./_init
 (=) require ./models/stream-model
 (=) require ./models/stream-collection
-(=) require connection
-(=) require index
+(=) require ./connection
+(=) require ./index
+(=) require ./_apply
  */
 ;

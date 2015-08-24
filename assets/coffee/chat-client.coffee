@@ -84,13 +84,15 @@ class ApiHeroUI.ChatClient extends ApiHeroUI.core.View
       # applies margin to top of messages list to make room for status bar
       @$('#messages').addClass 'pg-margin'
   # defines CompositeView init callback
-  init:->
-    # initializes out params model
-    @model = new global[ApiHeroUI.ns].Message
+  init:(options={})->
+    hasCollection = (opts)->
+      ( opts.hasOwnProperty('collection') and opts.collection instanceof Backbone.Collection )
     # obtains instance of socket message listener
-    @collection = global[ApiHeroUI.ns].MessageStream.getInstance()
+    (@collection = if hasCollection(options) then options.collection else global[ApiHeroUI.ns].MessageStream.getInstance()  
     # handles new message events with messagehandler
-    .on 'add', @messageHandler, @
+    ).on 'add', @messageHandler, @
+    # initializes out params model
+    @model = new (if @collection.model? then @collection.model else global[ApiHeroUI.ns].WebSock.StreamModel)
     _oHeight = 0
     # listens for native keyboar hosw events
     window.addEventListener 'native.keyboardshow', =>

@@ -1,8 +1,8 @@
 ###
-= require _init
+= require ./_init
 = require ./models/stream-model
 = require ./models/stream-collection
-= require connection
-= require index
-= require _apply
+= require ./connection
+= require ./index
+= require ./_apply
 ###
