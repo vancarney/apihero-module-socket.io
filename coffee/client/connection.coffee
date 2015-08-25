@@ -24,24 +24,25 @@ class ApiHero.WebSock.ValidationModel extends Backbone.Model
     return "required part 'body' was not defined" unless o.body
     return "content size was invalid" unless JSON.stringify o.body is o.size
     return
-class ApiHero.WebSock.SocketIOConnection extends Backbone.Events
+class ApiHero.WebSock.SocketIOConnection
   defaults:
-    host: 'localhost',
-    port: 80
     multiplex: true
     reconnection: true
     reconnectionDelay: 1000
     reconnectionDelayMax: 5000
     timeout: 20000
   constructor:(@__options)->
-    opts =_.extend {}, @defaults, _.pick( @__options, _.keys @defaults )
-    _socket = io "#{@__addr}", opts
+    _.extend @, Backbone.Events
+    opts = _.extend {}, @defaults, _.pick( @__options, _.keys @defaults )
+    _socket = io 'http://localhost:3000'
+    # return
+    # _socket = io "http://#{@__addr}", opts
     .on 'ws:datagram', (data)=>
       data.header.rcvTime = Date.now()
       (dM = new @validator).set data
       stream.add dM.attributes if dM.isValid() and (stream = @__streamHandlers[dM.attributes.header.type])?
     .on 'connect', =>
-      WebSock.StreamModel.__connection__ = @
+      ApiHero.WebSock.utils.getClientNS().StreamModel.__connection__ = @
       @trigger 'connect', @
     .on 'disconnect', =>
       @trigger 'disconnect'
@@ -58,6 +59,8 @@ class ApiHero.WebSock.SocketIOConnection extends Backbone.Events
     .on 'error', =>
       @trigger 'error', @
     @getSocket = => _socket
+    @emit = (name, message)=>
+      _socket.emit name, message
 ApiHero.WebSock.SocketIOConnection::validator = ApiHero.WebSock.ValidationModel
 unless window?
   module.exports = ApiHero.WebSock.SocketIOConnection

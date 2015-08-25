@@ -12,12 +12,11 @@ WebSock.Client            = require './client'
 module.exports.WebSock = WebSock
 module.exports.init = (app, options, callback)=>
   opts = _.extend {}, {auto_connect:true, redisHost:'localhost', redisPort:6379, secure:false}, options
-  server = require(if opts.secure then 'https' else 'http').Server app
-  unless app.hasOwnProperty 'ApiHero'
-    console.log 'APIHero not found\ntry running: npm install --save apihero'
-    process.exit 1
-  io = io server
-  # defines redis as socket.io adapter
-  io.adapter io_redis {host: opts.redisHost, port: opts.redisPort}
+  app.on 'started', =>
+    unless app.hasOwnProperty 'ApiHero'
+      console.log 'APIHero not found\ntry running: npm install --save apihero'
+      process.exit 1
+    # intiializes socket.io and defines redis as socket.io adapter
+    (io = io app.ApiHero.server).adapter io_redis {host: opts.redisHost, port: opts.redisPort}
   # _.extend app.APIHero, _io
   process.nextTick callback

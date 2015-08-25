@@ -19,7 +19,7 @@ class ApiHero.WebSock.StreamModel extends Backbone.Model
       @header.type ?= @__type
       m.header  = _.extend @header, sntTime: Date.now()
       m.body    = mdl.attributes
-      StreamModel.__connection__.socket.emit 'ws:datagram', m
+      StreamModel.__connection__.emit 'ws:datagram', m
   getSenderId:->
     @header.sender_id || null
   getSentTime:->

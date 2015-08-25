@@ -27,5 +27,7 @@ class ApiHero.WebSock.StreamCollection extends Backbone.Collection
     @create data
   initialize:->
     _client = arguments[0] if arguments[0] instanceof ApiHero.WebSock.Client
+  @getInstance: ->
+    @__instance ?= new @
 unless window?
   module.exports = ApiHero.WebSock.StreamCollection

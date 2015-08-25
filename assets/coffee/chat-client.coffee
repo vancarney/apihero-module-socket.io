@@ -88,7 +88,7 @@ class ApiHeroUI.ChatClient extends ApiHeroUI.core.View
     hasCollection = (opts)->
       ( opts.hasOwnProperty('collection') and opts.collection instanceof Backbone.Collection )
     # obtains instance of socket message listener
-    (@collection = if hasCollection(options) then options.collection else global[ApiHeroUI.ns].MessageStream.getInstance()  
+    (@collection = if hasCollection(options) then options.collection else global[ApiHeroUI.ns].WebSock.StreamCollection.getInstance()  
     # handles new message events with messagehandler
     ).on 'add', @messageHandler, @
     # initializes out params model
