@@ -31,35 +31,37 @@ class ApiHero.WebSock.SocketIOConnection
     reconnectionDelay: 1000
     reconnectionDelayMax: 5000
     timeout: 20000
-  constructor:(@__options)->
+  constructor:(delegate, @__options)->
     _.extend @, Backbone.Events
+    if ((url = @__options.url) == null)
+      return throw "options.url was null or not defined"
     opts = _.extend {}, @defaults, _.pick( @__options, _.keys @defaults )
-    _socket = io 'http://localhost:3000'
-    # return
-    # _socket = io "http://#{@__addr}", opts
+    _socket = io url, opts
     .on 'ws:datagram', (data)=>
       data.header.rcvTime = Date.now()
       (dM = new @validator).set data
-      stream.add dM.attributes if dM.isValid() and (stream = @__streamHandlers[dM.attributes.header.type])?
+      stream.add dM.attributes if dM.isValid() and (stream = delegate.__streamHandlers[dM.attributes.header.type])?
     .on 'connect', =>
       ApiHero.WebSock.utils.getClientNS().StreamModel.__connection__ = @
-      @trigger 'connect', @
+      delegate.trigger 'connect', delegate
     .on 'disconnect', =>
-      @trigger 'disconnect'
+      delegate.trigger 'disconnect'
     .on 'reconnect', =>
-      @trigger 'reconnect'
+      delegate.trigger 'reconnect'
     .on 'reconnecting', =>
-      @trigger 'reconnecting', @
+      delegate.trigger 'reconnecting', delegate
     .on 'reconnect_attempt', =>
-      @trigger 'reconnect_attempt', @
+      delegate.trigger 'reconnect_attempt', delegate
     .on 'reconnect_error', =>
-      @trigger 'reconnect_error', @
+      delegate.trigger 'reconnect_error', delegate
     .on 'reconnect_failed', =>
-      @trigger 'reconnect_failed', @
+      delegate.trigger 'reconnect_failed', delegate
     .on 'error', =>
-      @trigger 'error', @
+      delegate.trigger 'error', @
     @getSocket = => _socket
     @emit = (name, message)=>
+      console.log arguments
+      console.log delegate.__streamHandlers
       _socket.emit name, message
 ApiHero.WebSock.SocketIOConnection::validator = ApiHero.WebSock.ValidationModel
 unless window?

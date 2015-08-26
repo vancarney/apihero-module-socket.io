@@ -7185,7 +7185,154 @@ if (typeof window === "undefined" || window === null) {
   module.exports = ApiHero.WebSock.StreamCollection;
 }
 ;
-var ApiHero, Backbone,
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.WebSock.ChatView = (function(superClass) {
+  extend(ChatView, superClass);
+
+  function ChatView() {
+    return ChatView.__super__.constructor.apply(this, arguments);
+  }
+
+  ChatView.prototype.events = {
+    "submit form": function(evt) {
+      var mssg;
+      evt.preventDefault();
+      if ((mssg = this.$('input[name=memo]').val()) != null) {
+        return this.sendMessage(mssg);
+      }
+    },
+    "focus input[name=memo]": "keyboardOnHandler",
+    "blur input[name=memo]": "keyboardOffHandler",
+    "propertychange input[name=memo]": "changeHandler",
+    "change input[name=memo]": "changeHandler",
+    "keyup input[name=memo]": "keyUpHandler",
+    "input input[name=memo]": "changeHandler",
+    "paste input[name=memo]": "changeHandler",
+    "click a.btn.submit": function(evt) {
+      evt.preventDefault();
+      return this.sendMessage();
+    },
+    "click a.details-btn": function() {
+      return $('.details-overlay').removeClass('hidden');
+    }
+  };
+
+  ChatView.prototype.keyboardOnHandler = function(evt) {
+    if (global.Util.isMobile()) {
+      $('nav').addClass('hidden');
+      this.$('.input-row').css({
+        bottom: 0
+      });
+      return this.resize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    }
+  };
+
+  ChatView.prototype.keyboardOffHandler = function(evt) {
+    if (global.Util.isMobile()) {
+      $('nav').removeClass('hidden');
+      this.$('.input-row').css({
+        bottom: 50
+      });
+      return this.resize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    }
+  };
+
+  ChatView.prototype.sendMessage = function(mssg) {
+    if (global.Util.isPhonegap()) {
+      cordova.plugins.Keyboard.close();
+    }
+    if (mssg) {
+      this.model.set({
+        text: mssg
+      });
+    }
+    if (!(this.model.get('text'))) {
+      return;
+    }
+    this.model.save();
+    this.model.clear();
+    this.$('input[name=memo]').val('');
+    return this.$('a.btn.submit').addClass('disabled');
+  };
+
+  ChatView.prototype.keyUpHandler = function(evt) {
+    var mssg;
+    if (global.Util.isMobile() && (global.Util.isPhonegap() === false)) {
+      if (evt.which === 13) {
+        if ((mssg = this.$('input[name=memo]').val()) != null) {
+          this.sendMessage(mssg);
+        }
+      }
+      return $(evt.target).blur();
+    }
+  };
+
+  ChatView.prototype.changeHandler = function(evt) {
+    var t;
+    console.log('change');
+    this.model.set({
+      text: (t = $(evt.target).val())
+    });
+    return this.$('a.btn.submit')[(t.length ? 'remove' : 'add') + "Class"]('disabled');
+  };
+
+  ChatView.prototype.messageHandler = function(data) {
+    var o;
+    console.log('messageHandler:');
+    console.log(data);
+    o = _.extend({}, data.attributes, data.header.__user);
+    return this.$('#messages').append(templates['_elements/chat-item'](o));
+  };
+
+  ChatView.prototype.render = function() {
+    ChatView.__super__.render.call(this);
+    if (global.Util.isPhonegap()) {
+      return this.$('#messages').addClass('pg-margin');
+    }
+  };
+
+  ChatView.prototype.resize = function(d) {
+    var mrgn, offset;
+    return;
+    if (d == null) {
+      return;
+    }
+    mrgn = (this.$('#messages').css('margin-top')) || 0;
+    if (typeof mrgn === 'string') {
+      mrgn = parseInt(mrgn.replace('px', ''));
+    }
+    offset = $('nav').css('display') === 'none' ? 85 : 100;
+    offset = offset - (global.Util.isPhonegap() ? 23 : 0);
+    return this.$('#messages').height(d.height - (offset + mrgn));
+  };
+
+  ChatView.prototype.init = function() {
+    var _oHeight;
+    _oHeight = 0;
+    window.addEventListener('native.keyboardshow', (function(_this) {
+      return function() {
+        _oHeight = _this.$('#messages').height();
+        return _this.$('#messages').css('height', _oHeight + 50);
+      };
+    })(this));
+    return window.addEventListener('native.keyboardhide', (function(_this) {
+      return function() {
+        return _this.$('#messages').css('height', _oHeight + 2);
+      };
+    })(this));
+  };
+
+  return ChatView;
+
+})(ApiHeroUI.core.View);var ApiHero, Backbone,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
@@ -7266,52 +7413,55 @@ ApiHero.WebSock.SocketIOConnection = (function() {
     timeout: 20000
   };
 
-  function SocketIOConnection(__options) {
-    var _socket, opts;
+  function SocketIOConnection(delegate, __options) {
+    var _socket, opts, url;
     this.__options = __options;
     _.extend(this, Backbone.Events);
+    if ((url = this.__options.url) === null) {
+      throw "options.url was null or not defined";
+    }
     opts = _.extend({}, this.defaults, _.pick(this.__options, _.keys(this.defaults)));
-    _socket = io('http://localhost:3000').on('ws:datagram', (function(_this) {
+    _socket = io(url, opts).on('ws:datagram', (function(_this) {
       return function(data) {
         var dM, stream;
         data.header.rcvTime = Date.now();
         (dM = new _this.validator).set(data);
-        if (dM.isValid() && ((stream = _this.__streamHandlers[dM.attributes.header.type]) != null)) {
+        if (dM.isValid() && ((stream = delegate.__streamHandlers[dM.attributes.header.type]) != null)) {
           return stream.add(dM.attributes);
         }
       };
     })(this)).on('connect', (function(_this) {
       return function() {
         ApiHero.WebSock.utils.getClientNS().StreamModel.__connection__ = _this;
-        return _this.trigger('connect', _this);
+        return delegate.trigger('connect', delegate);
       };
     })(this)).on('disconnect', (function(_this) {
       return function() {
-        return _this.trigger('disconnect');
+        return delegate.trigger('disconnect');
       };
     })(this)).on('reconnect', (function(_this) {
       return function() {
-        return _this.trigger('reconnect');
+        return delegate.trigger('reconnect');
       };
     })(this)).on('reconnecting', (function(_this) {
       return function() {
-        return _this.trigger('reconnecting', _this);
+        return delegate.trigger('reconnecting', delegate);
       };
     })(this)).on('reconnect_attempt', (function(_this) {
       return function() {
-        return _this.trigger('reconnect_attempt', _this);
+        return delegate.trigger('reconnect_attempt', delegate);
       };
     })(this)).on('reconnect_error', (function(_this) {
       return function() {
-        return _this.trigger('reconnect_error', _this);
+        return delegate.trigger('reconnect_error', delegate);
       };
     })(this)).on('reconnect_failed', (function(_this) {
       return function() {
-        return _this.trigger('reconnect_failed', _this);
+        return delegate.trigger('reconnect_failed', delegate);
       };
     })(this)).on('error', (function(_this) {
       return function() {
-        return _this.trigger('error', _this);
+        return delegate.trigger('error', _this);
       };
     })(this));
     this.getSocket = (function(_this) {
@@ -7321,6 +7471,8 @@ ApiHero.WebSock.SocketIOConnection = (function() {
     })(this);
     this.emit = (function(_this) {
       return function(name, message) {
+        console.log(arguments);
+        console.log(delegate.__streamHandlers);
         return _socket.emit(name, message);
       };
     })(this);
@@ -7351,10 +7503,13 @@ ApiHero.WebSock.Client = (function() {
   Client.prototype.__streamHandlers = {};
 
   function Client(__addr, __options) {
+    var base;
     this.__addr = __addr;
     this.__options = __options != null ? __options : {};
     _.extend(this, Backbone.Events);
-    console.log('ApiHero.WebSock.Client');
+    if ((base = this.__options).url == null) {
+      base.url = this.__addr;
+    }
     this.model = ApiHero.WebSock.StreamModel;
     if (!((this.__options.auto_connect != null) && this.__options.auto_connect === false)) {
       this.connect();
@@ -7362,8 +7517,7 @@ ApiHero.WebSock.Client = (function() {
   }
 
   Client.prototype.connect = function() {
-    console.log("connect: " + ApiHero.WebSock.SocketIOConnection);
-    this.__conn = new (connection != null ? connection : ApiHero.WebSock.SocketIOConnection)(this.__addr);
+    this.__conn = new (connection != null ? connection : ApiHero.WebSock.SocketIOConnection)(this, this.__options);
     return this;
   };
 
@@ -7392,6 +7546,14 @@ ApiHero.WebSock.Client = (function() {
     return this.socket.io.engine.id;
   };
 
+  Client.prototype.getSocket = function() {
+    return this.__conn.getSocket();
+  };
+
+  Client.prototype.emit = function(name, message) {
+    return this.__conn.emit(name, message);
+  };
+
   return Client;
 
 })();
@@ -7410,6 +7572,7 @@ RikkiTikki.extend(ApiHero);
 (=) require ../../node_modules/socket.io-client/socket.io.js
 (=) require ./models/stream-model
 (=) require ./models/stream-collection
+(=) require_tree ./views
 (=) require ./connection
 (=) require ./index
 (=) require ./_apply
