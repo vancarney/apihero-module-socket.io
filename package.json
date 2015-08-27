@@ -24,7 +24,7 @@
     "url": "github.com/vancarney/apihero-module-socket.io.git"
   },
   "dependencies": {
-    "apihero-module-browserify": "file:../apihero-module-browserify",
+    "apihero-module-browserify": "git+https://github.com/vancarney/apihero-module-browserify",
     "backbone": "^1.2.1",
     "fun-utils": "0.0.2",
     "hiredis": "^0.4.0",
