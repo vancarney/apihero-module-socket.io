@@ -9,6 +9,7 @@ class ApiHeroUI.ChatClient extends ApiHeroUI.core.View
       evt.preventDefault()
       # invokes sendMessage to dispacth a message upon the socket
       @sendMessage mssg if (mssg = @$('input[name=memo]').val())?
+      false
     # handles textfield input `focus`
     "focus input[name=memo]":"keyboardOnHandler"
     # handles textfield input `blur`
